@@ -1,0 +1,51 @@
+body,
+html {
+    height: 100%;
+    margin: 0;
+    font-family: "Lucida Console", "Courier New", monospace;
+}
+
+.bg {
+    /* The image used */
+    background-image: url("../images/uwe-conrad-0YcR_WttkoA-unsplash.jpg");
+    /* Full height */
+    height: 100%;
+    /* Center and scale the image nicely */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: relative;
+}
+
+.experience {
+    height: 100%;
+}
+
+.contact {
+    height: 100%;
+}
+
+.caption {
+    position: absolute;
+    left: 0;
+    top: 40%;
+    width: 100%;
+    text-align: center;
+    color: #000;
+}
+
+.caption span.border {
+    background-color: #111;
+    color: #fff;
+    padding: 18px;
+    font-size: 25px;
+    letter-spacing: 10px;
+}
+
+.caption img {
+    border-radius: 50%;
+    border: 5px solid #111;
+    margin-top: 30px;
+    width: 150px;
+    height: 150px;
+}
