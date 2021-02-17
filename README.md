@@ -14,3 +14,4 @@ Noen kilder jeg har brukt:
 
 Images:
 - background: <span>Photo by <a href="https://unsplash.com/@uconrad?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Uwe Conrad</a> on <a href="https://unsplash.com/s/photos/spring?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
+- background: <span>Photo by <a href="https://unsplash.com/@sotti?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Shifaaz shamoon</a> on <a href="https://unsplash.com/s/photos/beach?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
