@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="no">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rask vurderingsside</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 2rem; }
+    .wrap { max-width: 520px; }
+    label { display:block; margin-bottom: .25rem; font-weight: 600; }
+    input[type="text"] { width: 100%; padding: .6rem .7rem; border: 1px solid #ccc; border-radius: .5rem; }
+    button { margin-top: .75rem; padding: .6rem 1rem; border: 0; border-radius: .6rem; cursor: pointer; }
+    button { background: #111827; color: white; }
+    .msg { margin-top: 1rem; font-weight: 700; display:none; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Bør jeg gjennomføre tiltaket?</h1>
+
+    <label for="innspill">Beskriv tiltaket:</label>
+    <input id="innspill" type="text" placeholder="F.eks. beskrivelse av tiltaket" />
+
+    <button id="vurderBtn">Vurder</button>
+
+    <p id="resultat" class="msg">Nei, dette bør du ikke gjøre</p>
+  </div>
+
+  <script>
+    const btn = document.getElementById('vurderBtn');
+    const resultat = document.getElementById('resultat');
+
+    btn.addEventListener('click', function () {
+      // Ignorerer innholdet i tekstfeltet, viser bare beskjeden
+      resultat.style.display = 'block';
+    });
+  </script>
+</body>
+</html>
