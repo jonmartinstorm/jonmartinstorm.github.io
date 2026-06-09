@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Load Flow &mdash; IEEE-30 connection study</title>
+  <style>
+    :root { color-scheme: dark; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; background: #12141c; overflow: hidden;
+      font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; color: #e1e6f0; }
+    #app { position: fixed; inset: 0; }
+    #panel { position: fixed; top: 0; right: 0; width: 300px; height: 100%;
+      background: rgba(17,19,26,0.94); border-left: 1px solid #262a36;
+      padding: 18px 18px 14px; display: flex; flex-direction: column; gap: 10px; }
+    h1 { font-size: 15px; margin: 0; letter-spacing: .3px; }
+    .sub { color: #8c93a6; font-size: 12px; margin-top: -4px; }
+    #status { font-size: 16px; font-weight: 700; margin-top: 4px; }
+    #status.ok { color: #74d98c; } #status.bad { color: #f25454; }
+    #kpi { font-size: 12px; color: #c3c9d6; }
+    #violations { font-size: 12px; line-height: 1.5; overflow-y: auto; flex: 1; }
+    #violations .hdr { margin-top: 8px; font-weight: 700; }
+    #violations .sm { font-size: 11px; margin-top: 2px; }
+    .bad { color: #f25454; } .ok { color: #74d98c; } .dim { color: #8c93a6; }
+    .controls { font-size: 11px; color: #8c93a6; border-top: 1px solid #262a36; padding-top: 10px; }
+    .controls b { color: #c3c9d6; font-weight: 600; }
+    .controls div { margin: 2px 0; }
+  </style>
+  <script type="module" crossorigin src="/assets/index-CZvEz4rC.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/Geometry-DYwWNA0a.js">
+  <link rel="modulepreload" crossorigin href="/assets/RenderTargetSystem-BXy590gQ.js">
+</head>
+<body>
+  <div id="app"></div>
+  <aside id="panel">
+    <h1>IEEE-30 connection study</h1>
+    <div class="sub">CIM-aligned model &rarr; Y-bus &rarr; fast decoupled</div>
+    <div id="status">&hellip;</div>
+    <div id="kpi"></div>
+    <div id="violations"></div>
+    <div class="controls">
+      <div><b>click bus</b> &nbsp; add load step</div>
+      <div><b>[ / ]</b> &nbsp; load step &minus;/&plus;</div>
+      <div><b>U</b> &nbsp; reinforce worst overload</div>
+      <div><b>C</b> &nbsp; clear all changes</div>
+      <div><b>F</b> &nbsp; branch: loading / P / Q</div>
+      <div><b>L</b> &nbsp; toggle labels</div>
+    </div>
+  </aside>
+</body>
+</html>
