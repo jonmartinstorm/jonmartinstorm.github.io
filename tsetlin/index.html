@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tsetlin Rejection Classifier (standalone)</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        font-family: Inter, Arial, sans-serif;
+      }
+      body { margin: 2rem auto; max-width: 760px; padding: 0 1rem; }
+      form { display: grid; gap: 0.75rem; }
+      textarea { min-height: 180px; width: 100%; padding: 0.75rem; line-height: 1.4; }
+      .hint { font-size: 0.9rem; opacity: 0.8; }
+      .card {
+        margin-top: 1rem;
+        border: 1px solid color-mix(in oklab, currentColor 20%, transparent);
+        border-radius: 10px;
+        padding: 1rem;
+      }
+      .top-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+      .label-pill {
+        display: inline-block; padding: 0.25rem 0.6rem; border-radius: 999px; font-weight: 700;
+        border: 1px solid color-mix(in oklab, currentColor 25%, transparent);
+      }
+      .confidence { min-width: 160px; }
+      .confidence-bar {
+        height: 8px; border-radius: 999px;
+        background: color-mix(in oklab, currentColor 18%, transparent); overflow: hidden;
+      }
+      .confidence-fill { height: 100%; background: #3b82f6; }
+      .vote-list { margin-top: 0.75rem; display: grid; gap: 0.45rem; }
+      .vote-row { display: grid; grid-template-columns: 1fr 70px; gap: 0.5rem; align-items: center; }
+      .vote-track {
+        height: 22px; border-radius: 6px;
+        background: color-mix(in oklab, currentColor 14%, transparent);
+        overflow: hidden; position: relative;
+      }
+      .vote-fill { height: 100%; background: #10b981; }
+      .vote-label { position: absolute; left: 8px; top: 2px; font-size: 0.85rem; white-space: nowrap; }
+      .rule {
+        margin-top: 0.75rem; padding: 0.7rem; border-radius: 8px;
+        background: color-mix(in oklab, currentColor 8%, transparent); font-size: 0.95rem;
+      }
+      .rule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 0.5rem; }
+      .rule-col h4 { margin: 0 0 0.35rem; font-size: 0.9rem; }
+      .chips { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+      .chip {
+        border-radius: 999px; padding: 0.2rem 0.5rem; font-size: 0.83rem;
+        border: 1px solid color-mix(in oklab, currentColor 20%, transparent);
+      }
+      .chip.pos { background: color-mix(in oklab, #10b981 18%, transparent); }
+      .chip.neg { background: color-mix(in oklab, #ef4444 18%, transparent); }
+      .muted { opacity: 0.75; font-size: 0.85rem; }
+      #error { margin-top: 0.5rem; color: #d33; }
+    </style>
+  </head>
+  <body>
+    <h1>Tsetlin Rejection Classifier</h1>
+    <p>
+      Fully client-side: the model is embedded in this file as a gzipped binary
+      and every keystroke is classified locally — no server, no network.
+    </p>
+
+    <form id="classifier-form">
+      <label for="text">Input text</label>
+      <textarea id="text" name="text" required></textarea>
+      <div class="hint" id="status">Loading model…</div>
+    </form>
+
+    <div id="result" aria-live="polite"></div>
+    <div id="error" aria-live="polite"></div>
+
+    <script type="module">
+      // ---- Embedded model: base64(gzip(TMB1 binary)) -----------------------
+      const MODEL_B64_GZ = "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";
+
+      // ---- TMB1 decoder (mirror of tm_model.ts, plain JS) ------------------
+      class Reader {
+        constructor(buf) { this.buf = buf; this.pos = 0; }
+        varint() {
+          let result = 0, shift = 0;
+          for (;;) {
+            const b = this.buf[this.pos++];
+            if (b === undefined) throw new Error("TMB1: unexpected end of data");
+            result |= (b & 0x7f) << shift;
+            if ((b & 0x80) === 0) return result >>> 0;
+            shift += 7;
+          }
+        }
+        zigzag() { const n = this.varint(); return (n >>> 1) ^ -(n & 1); }
+        string() {
+          const len = this.varint();
+          const bytes = this.buf.subarray(this.pos, this.pos + len);
+          this.pos += len;
+          return new TextDecoder().decode(bytes);
+        }
+        idList() {
+          const n = this.varint(), ids = new Array(n);
+          let prev = -1;
+          for (let i = 0; i < n; i++) { prev += this.varint() + 1; ids[i] = prev; }
+          return ids;
+        }
+      }
+
+      function decodeModel(bytes) {
+        if (bytes[0] !== 0x54 || bytes[1] !== 0x4d || bytes[2] !== 0x42 || bytes[3] !== 0x31) {
+          throw new Error("Not a TMB1 model file");
+        }
+        const r = new Reader(bytes.subarray(4));
+        const labels = [], features = [], classes = [];
+        const nLabels = r.varint();
+        for (let i = 0; i < nLabels; i++) labels.push(r.string());
+        const nFeatures = r.varint();
+        for (let i = 0; i < nFeatures; i++) features.push(r.string());
+        for (let c = 0; c < nLabels; c++) {
+          const nRules = r.varint(), rules = new Array(nRules);
+          for (let j = 0; j < nRules; j++) {
+            const w = r.zigzag();
+            rules[j] = { w, pos: r.idList(), neg: r.idList() };
+          }
+          classes.push(rules);
+        }
+        return { labels, features, classes, featIndex: new Map(features.map((f, i) => [f, i])) };
+      }
+
+      async function loadEmbeddedModel() {
+        const bin = atob(MODEL_B64_GZ);
+        const gz = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) gz[i] = bin.charCodeAt(i);
+        const stream = new Blob([gz]).stream().pipeThrough(new DecompressionStream("gzip"));
+        const raw = new Uint8Array(await new Response(stream).arrayBuffer());
+        return decodeModel(raw);
+      }
+
+      // ---- Inference (identical to server.ts) -------------------------------
+      function tokenize(text) {
+        return text.toLowerCase().match(/[\p{L}\p{N}_]{2,}/gu) ?? [];
+      }
+
+      function featurize(text, featIndex) {
+        const tokens = tokenize(text);
+        const grams = new Set(tokens);
+        for (let i = 0; i < tokens.length - 1; i++) grams.add(`${tokens[i]} ${tokens[i + 1]}`);
+        const present = new Set();
+        for (const gram of grams) {
+          const idx = featIndex.get(gram);
+          if (idx !== undefined) present.add(idx);
+        }
+        return present;
+      }
+
+      function classify(text, model) {
+        const present = featurize(text, model.featIndex);
+        const votes = [];
+        for (let i = 0; i < model.labels.length; i++) {
+          let score = 0;
+          for (const rule of model.classes[i] ?? []) {
+            const posOk = rule.pos.every((k) => present.has(k));
+            const negOk = !rule.neg.some((k) => present.has(k));
+            if (posOk && negOk) score += rule.w;
+          }
+          votes.push({ label: model.labels[i], score });
+        }
+        votes.sort((a, b) => b.score - a.score);
+        const predicted = votes[0]?.label ?? "unknown";
+        const confidence = Math.max(0, Math.min(1,
+          ((votes[0]?.score ?? 0) - (votes[1]?.score ?? 0) + 50) / 100));
+
+        let topRule = null, bestW = 0;
+        const classIndex = model.labels.indexOf(predicted);
+        if (classIndex >= 0) {
+          for (const rule of model.classes[classIndex] ?? []) {
+            if (rule.w <= bestW) continue;
+            const posOk = rule.pos.every((k) => present.has(k));
+            const negOk = !rule.neg.some((k) => present.has(k));
+            if (!posOk || !negOk) continue;
+            topRule = {
+              weight: rule.w,
+              because: rule.pos.map((k) => model.features[k]),
+              unless: rule.neg.map((k) => model.features[k]),
+            };
+            bestW = rule.w;
+          }
+        }
+        return { label: predicted, votes, confidence, topRule };
+      }
+
+      // ---- UI wiring --------------------------------------------------------
+      const textEl = document.getElementById("text");
+      const resultEl = document.getElementById("result");
+      const errorEl = document.getElementById("error");
+      const statusEl = document.getElementById("status");
+      let debounceTimer = null;
+      let model = null;
+
+      function esc(value) {
+        return String(value)
+          .replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;").replaceAll("'", "&#39;");
+      }
+
+      function renderResult(payload) {
+        const confidencePct = Math.round((payload.confidence || 0) * 100);
+        const votes = Array.isArray(payload.votes) ? payload.votes : [];
+        const maxVote = votes.length ? Math.max(...votes.map((v) => v.score), 1) : 1;
+        const minVote = votes.length ? Math.min(...votes.map((v) => v.score), 0) : 0;
+        const span = Math.max(1, maxVote - minVote);
+
+        const voteHtml = votes.map((v) => {
+          const pct = Math.max(6, Math.round(((v.score - minVote) / span) * 100));
+          return `
+            <div class="vote-row">
+              <div class="vote-track">
+                <div class="vote-fill" style="width:${pct}%"></div>
+                <span class="vote-label">${esc(v.label)}</span>
+              </div>
+              <strong>${v.score}</strong>
+            </div>`;
+        }).join("");
+
+        const topRule = payload.topRule ? `
+          <div class="rule">
+            <strong>Top rule explanation</strong>
+            <div class="muted">Weight: ${payload.topRule.weight}</div>
+            <div class="rule-grid">
+              <div class="rule-col">
+                <h4>Does contain</h4>
+                <div class="chips">
+                  ${payload.topRule.because.length
+                    ? payload.topRule.because.map((t) => `<span class="chip pos">${esc(t)}</span>`).join("")
+                    : `<span class="muted">No required terms</span>`}
+                </div>
+              </div>
+              <div class="rule-col">
+                <h4>Does not contain</h4>
+                <div class="chips">
+                  ${payload.topRule.unless.length
+                    ? payload.topRule.unless.map((t) => `<span class="chip neg">${esc(t)}</span>`).join("")
+                    : `<span class="muted">No blocked terms</span>`}
+                </div>
+              </div>
+            </div>
+          </div>` : `
+          <div class="rule">
+            <strong>Top rule:</strong> No strong positive rule matched this input.
+          </div>`;
+
+        resultEl.innerHTML = `
+          <div class="card">
+            <div class="top-row">
+              <div>
+                <div>Top category</div>
+                <span class="label-pill">${esc(payload.label)}</span>
+              </div>
+              <div class="confidence">
+                <div>Confidence</div>
+                <div class="confidence-bar">
+                  <div class="confidence-fill" style="width:${confidencePct}%"></div>
+                </div>
+                <small>${confidencePct}%</small>
+              </div>
+            </div>
+            <div class="vote-list">${voteHtml}</div>
+            ${topRule}
+          </div>`;
+      }
+
+      function classifyNow() {
+        const text = textEl.value.trim();
+        resultEl.innerHTML = "";
+        errorEl.textContent = "";
+        if (!text || !model) return;
+        try {
+          renderResult(classify(text, model));
+        } catch (err) {
+          errorEl.textContent = err instanceof Error ? err.message : "Unexpected error.";
+        }
+      }
+
+      textEl.addEventListener("input", () => {
+        if (debounceTimer) clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(classifyNow, 120);
+      });
+
+      loadEmbeddedModel()
+        .then((m) => {
+          model = m;
+          statusEl.textContent =
+            `Model loaded: ${m.labels.length} classes, ` +
+            `${m.classes.reduce((s, c) => s + c.length, 0)} rules, ` +
+            `${m.features.length} n-grams. Live classification while you type.`;
+          classifyNow();
+        })
+        .catch((err) => {
+          statusEl.textContent = "";
+          errorEl.textContent = `Failed to load embedded model: ${err.message}`;
+        });
+    </script>
+  </body>
+</html>
